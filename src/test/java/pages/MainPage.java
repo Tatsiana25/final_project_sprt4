@@ -1,9 +1,13 @@
-package pageObject;
+package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class MainPage {
     private WebDriver driver;
@@ -16,6 +20,11 @@ public class MainPage {
 
     //локатор "Раздел 'Вопросы о важном'"
     private final By listOfFAQ = By.className("Home_FAQ__3uVm4");
+    private final By ofFaqButton = By.className("accordion__button");
+    private final By ofFaqText = By.cssSelector(".accordion__panel p");
+
+    public MainPage() {
+    }
 
     public MainPage(WebDriver driver) {
         this.driver = driver;
@@ -37,22 +46,25 @@ public class MainPage {
     }
 
 
-    public void scrollToListOfFAQ() {
-        WebElement element = driver.findElement(listOfFAQ);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+    public void scrollToListOfFaqAndClick(int index) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", driver.findElements(ofFaqButton).get(index));
+        driver.findElements(ofFaqButton).get(index).click();
     }
 
-    public String findAnswerByQuestion(String questionText) {
-        By question = By.xpath(".//div[@class='accordion__button' and text()='" + questionText + "']");
-        driver.findElement(question).click();
-        String attrib = driver.findElement(question).getAttribute("id");
-        int idNum = attrib.lastIndexOf("-");
-        String idNumStr = attrib.substring(idNum + 1);
-        String attribAnswer = "accordion__panel-" + idNumStr;
-        String answerXPath = ".//div[@id='" + attribAnswer + "']/p";
+    public void waitForLoadFaq() {
+        new WebDriverWait(driver, Duration.ofSeconds(7))
+                .until(ExpectedConditions.visibilityOfElementLocated(listOfFAQ));
+    }
 
-        By answer = By.xpath(answerXPath);
+    public String getTextFromListFaq(int index) {
+        return driver.findElements(ofFaqText).get(index).getText();
+    }
 
-        return driver.findElement(answer).getText();
+    public By getOrderUpButton() {
+        return orderUpButton;
+    }
+
+    public By getOrderDownButton() {
+        return orderDownButton;
     }
 }
